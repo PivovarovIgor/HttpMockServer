@@ -3,7 +3,6 @@ import com.sun.net.httpserver.spi.HttpServerProvider
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import java.io.OutputStream
 import java.net.InetSocketAddress
 import java.net.Socket
 
@@ -37,9 +36,9 @@ fun main() {
             .appendLine(requestBody)
         httpExchange.responseHeaders["Cache-Control"] = listOf("max-age=60")
         httpExchange.sendResponseHeaders(200, response.length.toLong())
-        val os: OutputStream = httpExchange.responseBody
-        os.write(response.toString().toByteArray())
-        os.close()
+        httpExchange.responseBody.use {
+            it.write(response.toString().toByteArray())
+        }
     }
     httpServer.start()
     println("the http server is running")
